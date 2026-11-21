@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GBP Practice Lab — учебный симулятор</title>
+<style>
+:root{--blue:#1a73e8;--ink:#202124;--muted:#5f6368;--line:#dadce0;--bg:#f8fafd;--green:#188038}
+*{box-sizing:border-box}
+body{margin:0;font:14px/1.45 Arial,Helvetica,sans-serif;color:var(--ink);background:#eef1f5}
+header{height:62px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 22px;position:sticky;top:0;z-index:5}
+.brand{display:flex;align-items:center;gap:10px;font-size:18px;font-weight:600}.gmark{font-weight:800;font-size:23px;color:#4285f4}
+.topnote{font-size:12px;color:#8a4b08;background:#fff4e5;border:1px solid #f5d6a6;padding:7px 10px;border-radius:18px}
+main{display:grid;grid-template-columns:minmax(420px,1.04fr) minmax(420px,.96fr);gap:18px;padding:18px;max-width:1600px;margin:auto;align-items:start}
+.panel{background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:0 1px 3px #0000000b}
+.panelhead{padding:17px 20px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between}
+.panelhead h2{font-size:17px;margin:0}.sub{color:var(--muted);font-size:12px;margin-top:4px}
+.editor-body{display:grid;grid-template-columns:150px 1fr;min-height:760px}
+nav{background:#f8fafd;border-right:1px solid var(--line);padding:12px 8px}
+nav button{display:block;width:100%;text-align:left;border:0;background:transparent;padding:11px 10px;border-radius:8px;color:#3c4043;cursor:pointer;font-size:13px;margin:2px 0}
+nav button.active{background:#e8f0fe;color:#174ea6;font-weight:600}
+.formarea{padding:18px 20px;min-width:0}
+.section{display:none}.section.active{display:block}
+.section h3{font-size:16px;margin:0 0 5px}.hint{color:var(--muted);font-size:12px;margin:0 0 18px}
+.field{margin:0 0 16px}.field label{display:block;font-weight:600;font-size:12px;margin-bottom:6px;color:#3c4043}
+input,textarea,select{width:100%;border:1px solid #c6c9ce;border-radius:7px;padding:10px 11px;font:14px Arial;color:var(--ink);background:#fff;outline:none}
+input:focus,textarea:focus,select:focus{border:2px solid var(--blue);padding:9px 10px}
+textarea{resize:vertical;min-height:90px}.counter{font-size:11px;color:var(--muted);text-align:right;margin-top:4px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.hoursrow{display:grid;grid-template-columns:74px 1fr 1fr 82px;gap:7px;align-items:center;margin-bottom:9px;font-size:12px}
+.hoursrow input{padding:8px;font-size:12px}.hoursrow button{border:1px solid var(--line);background:#fff;border-radius:6px;padding:8px;cursor:pointer}
+.btn{border:0;border-radius:7px;background:var(--blue);color:#fff;padding:10px 14px;font-weight:600;cursor:pointer}.btn.secondary{background:#fff;color:var(--blue);border:1px solid var(--line)}
+.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:20px}
+.previewwrap{padding:16px;background:#f8fafd}
+.previewtabs{display:flex;gap:8px;margin-bottom:13px}.previewtabs button{border:1px solid var(--line);background:#fff;border-radius:18px;padding:7px 13px;cursor:pointer}.previewtabs button.active{background:#e8f0fe;border-color:#c6dafc;color:#174ea6}
+.searchmock{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px;max-width:620px;margin:auto}
+.searchbar{height:42px;border:1px solid #dfe1e5;border-radius:24px;display:flex;align-items:center;padding:0 15px;color:#777;margin-bottom:17px;box-shadow:0 1px 3px #00000012}
+.kicker{font-size:12px;color:var(--muted);margin-bottom:7px}
+.business-title{font-size:23px;font-weight:400;margin:0 0 5px}
+.rating{font-size:13px;margin-bottom:12px}.stars{color:#f9ab00;letter-spacing:1px}
+.pills{display:flex;gap:8px;flex-wrap:wrap;margin:13px 0}.pill{border:1px solid #dadce0;border-radius:18px;padding:7px 12px;color:#1a73e8;font-size:12px}
+.hero{display:grid;grid-template-columns:1.35fr 1fr;gap:5px;height:190px;border-radius:10px;overflow:hidden;background:#e9edf2;margin:12px 0}
+.hero img{width:100%;height:100%;object-fit:cover}.hero .placeholder{display:flex;align-items:center;justify-content:center;color:#7b8188;background:linear-gradient(135deg,#e5e9ef,#f7f8fa);font-size:12px}
+.details{font-size:13px}.detail{display:grid;grid-template-columns:85px 1fr;gap:8px;padding:7px 0;border-top:1px solid #eee}.detail b{font-weight:600;color:#3c4043}.detail span{overflow-wrap:anywhere}
+.mapmock{display:none;background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;max-width:620px;margin:auto}
+.mapcanvas{height:260px;background-color:#e8eee6;background-image:linear-gradient(35deg,transparent 46%,#fff 47%,#fff 50%,transparent 51%),linear-gradient(120deg,transparent 46%,#fff 47%,#fff 50%,transparent 51%);background-size:120px 100px,160px 130px;position:relative}
+.pin{position:absolute;left:51%;top:43%;font-size:34px;filter:drop-shadow(0 2px 2px #5555)}
+.mapcard{padding:15px;display:grid;grid-template-columns:100px 1fr;gap:13px}.mapthumb{background:#e8edf3;border-radius:8px;min-height:85px;display:flex;align-items:center;justify-content:center;color:#7b8188;font-size:11px;text-align:center}
+.mapcard h3{margin:0 0 5px;font-size:17px;font-weight:500}
+.previewfoot{font-size:11px;color:#777;text-align:center;margin:12px auto 0;max-width:620px}
+.photo-grid{display:flex;gap:10px;flex-wrap:wrap}.photo-box{width:110px;height:90px;border:1px dashed #aeb4bc;border-radius:8px;display:flex;align-items:center;justify-content:center;overflow:hidden;color:#777;font-size:11px;text-align:center}.photo-box img{width:100%;height:100%;object-fit:cover}
+.status{font-size:11px;color:var(--green);font-weight:600}
+@media(max-width:980px){main{grid-template-columns:1fr}.editor-body{min-height:unset}.preview-panel{order:2}}
+@media(max-width:600px){main{padding:9px;gap:10px}.editor-body{grid-template-columns:1fr}nav{display:flex;overflow-x:auto;border-right:0;border-bottom:1px solid var(--line);gap:4px}nav button{white-space:nowrap;width:auto}.formarea{padding:15px}.grid2{grid-template-columns:1fr}.hoursrow{grid-template-columns:55px 1fr 1fr 68px}.topnote{display:none}.hero{height:145px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><span class="gmark">G</span> GBP Practice Lab</div>
+  <div class="topnote">Учебный симулятор · изменения не публикуются в Google</div>
+</header>
+<main>
+<section class="panel">
+ <div class="panelhead"><div><h2>Панель управления профилем</h2><div class="sub">Заполняй поля — предварительный просмотр обновится автоматически</div></div><span class="status">● Локальный режим</span></div>
+ <div class="editor-body">
+  <nav>
+   <button class="active" data-tab="basic">Об организации</button>
+   <button data-tab="contact">Контакты</button>
+   <button data-tab="location">Местоположение</button>
+   <button data-tab="hours">Часы работы</button>
+   <button data-tab="services">Услуги</button>
+   <button data-tab="photos">Фотографии</button>
+  </nav>
+  <div class="formarea">
+   <div class="section active" id="basic">
+    <h3>Об организации</h3><p class="hint">Основные сведения, которые помогают пользователям понять, чем занимается компания.</p>
+    <div class="field"><label for="name">Название организации</label><input id="name" value="Northside Auto Service" maxlength="100"></div>
+    <div class="field"><label for="category">Основная категория</label><select id="category"><option>Автосервис</option><option>Автомастерская</option><option>Клининговая компания</option><option>Фотограф</option><option>Ресторан</option><option>Стоматологическая клиника</option><option>Салон красоты</option><option>Строительная компания</option></select></div>
+    <div class="field"><label for="description">Описание организации</label><textarea id="description" maxlength="750">Независимый автосервис: техническое обслуживание, диагностика и ремонт легковых автомобилей. Помогаем поддерживать автомобиль в исправном состоянии и заранее выявлять возможные неисправности.</textarea><div class="counter"><span id="descCount">0</span>/750</div></div>
+    <div class="field"><label for="from">Дата открытия (необязательно)</label><input id="from" type="date"></div>
+   </div>
+   <div class="section" id="contact">
+    <h3>Контактная информация</h3><p class="hint">Способы связи и адрес сайта. Используй учебные данные.</p>
+    <div class="field"><label for="phone">Телефон</label><input id="phone" value="+31 20 123 4567"></div>
+    <div class="field"><label for="website">Сайт</label><input id="website" value="https://example.com"></div>
+    <div class="field"><label for="appointment">Ссылка для записи</label><input id="appointment" placeholder="https://..."></div>
+   </div>
+   <div class="section" id="location">
+    <h3>Местоположение и зоны обслуживания</h3><p class="hint">Для тренировки используй вымышленные данные или адрес, который имеешь право указывать.</p>
+    <div class="field"><label for="address">Адрес</label><input id="address" value="Keizersgracht 100"></div>
+    <div class="grid2">
+     <div class="field"><label for="city">Город</label><input id="city" value="Amsterdam"></div>
+     <div class="field"><label for="postal">Почтовый индекс</label><input id="postal" value="1015 CS"></div>
+    </div>
+    <div class="field"><label for="country">Страна</label><input id="country" value="Netherlands"></div>
+    <div class="field"><label for="areas">Зоны обслуживания (через запятую)</label><input id="areas" value="Amsterdam, Haarlem, Amstelveen"></div>
+   </div>
+   <div class="section" id="hours">
+    <h3>Часы работы</h3><p class="hint">Настрой расписание по дням. Переключатель «Закрыто» скрывает время в превью.</p>
+    <div id="hoursList"></div>
+   </div>
+   <div class="section" id="services">
+    <h3>Услуги</h3><p class="hint">Добавь услуги, которые организация действительно предоставляет. В тренажёре они отображаются в карточке.</p>
+    <div class="field"><label for="servicesText">Список услуг (каждая с новой строки)</label><textarea id="servicesText">Диагностика автомобиля
+Замена масла
+Техническое обслуживание
+Ремонт тормозной системы
+Подготовка к техосмотру</textarea></div>
+    <div class="field"><label for="price">Ценовой диапазон</label><select id="price"><option value="">Не указан</option><option>€</option><option>€€</option><option>€€€</option><option>€€€€</option></select></div>
+   </div>
+   <div class="section" id="photos">
+    <h3>Фотографии</h3><p class="hint">Загрузи локальные изображения для предпросмотра. Они не отправляются на сервер.</p>
+    <div class="field"><label for="photoUpload">Добавить фото</label><input id="photoUpload" type="file" accept="image/*" multiple></div>
+    <div class="photo-grid" id="photoGrid"><div class="photo-box">Здесь появятся<br>твои фото</div></div>
+   </div>
+   <div class="actions"><button class="btn secondary" id="reset">Сбросить пример</button><button class="btn" id="export">Скачать данные профиля (JSON)</button></div>
+  </div>
+ </div>
+</section>
+<section class="panel preview-panel">
+ <div class="panelhead"><div><h2>Предварительный просмотр</h2><div class="sub">Условная визуализация карточки, а не точная копия выдачи</div></div></div>
+ <div class="previewwrap">
+  <div class="previewtabs"><button class="active" data-view="search">Google Search</button><button data-view="maps">Google Maps</button></div>
+  <div class="searchmock" id="searchView">
+   <div class="searchbar">⌕　Поиск в Google</div>
+   <div class="kicker">Панель организации · пример отображения</div>
+   <h1 class="business-title" id="pName">Northside Auto Service</h1>
+   <div class="rating"><span class="stars">★★★★★</span> <span id="pRating">4,8</span> ( <span id="pReviews">126</span> ) · <span id="pCategory">Автосервис</span></div>
+   <div class="hero"><div class="placeholder" id="mainPhoto">Фотография организации</div><div class="placeholder">Карта и расположение</div></div>
+   <div class="pills"><span class="pill">Маршрут</span><span class="pill">Сохранить</span><span class="pill">Поделиться</span><span class="pill">Позвонить</span></div>
+   <div class="details">
+    <div class="detail"><b>Адрес</b><span id="pAddress">Keizersgracht 100, Amsterdam, 1015 CS, Netherlands</span></div>
+    <div class="detail"><b>Телефон</b><span id="pPhone">+31 20 123 4567</span></div>
+    <div class="detail"><b>Сайт</b><span id="pWebsite">example.com</span></div>
+    <div class="detail"><b>Часы</b><span id="pHours">Открыто · Пн–Пт 09:00–18:00</span></div>
+    <div class="detail"><b>Описание</b><span id="pDescription"></span></div>
+    <div class="detail"><b>Услуги</b><span id="pServices"></span></div>
+    <div class="detail"><b>Стоимость</b><span id="pPrice">Не указана</span></div>
+    <div class="detail"><b>Обслуживает</b><span id="pAreas">Amsterdam, Haarlem, Amstelveen</span></div>
+   </div>
+  </div>
+  <div class="mapmock" id="mapsView">
+   <div class="mapcanvas"><div class="pin">📍</div></div>
+   <div class="mapcard"><div class="mapthumb" id="mapPhoto">Фото<br>организации</div><div><h3 id="mName">Northside Auto Service</h3><div class="rating"><span class="stars">★★★★★</span> 4,8 · <span id="mCategory">Автосервис</span></div><div id="mAddress">Amsterdam, Netherlands</div><div id="mHours">Часы работы не указаны</div></div></div>
+  </div>
+  <div class="previewfoot">Демонстрационный макет. Реальная выдача Google отличается по стране, устройству, запросу и настройкам пользователя.</div>
+ </div>
+</section>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+const ids=['name','category','description','phone','website','appointment','address','city','postal','country','areas','servicesText','price','from'];
+const defaults={name:'Northside Auto Service',category:'Автосервис',description:'Независимый автосервис: техническое обслуживание, диагностика и ремонт легковых автомобилей. Помогаем поддерживать автомобиль в исправном состоянии и заранее выявлять возможные неисправности.',phone:'+31 20 123 4567',website:'https://example.com',appointment:'',address:'Keizersgracht 100',city:'Amsterdam',postal:'1015 CS',country:'Netherlands',areas:'Amsterdam, Haarlem, Amstelveen',servicesText:'Диагностика автомобиля\\nЗамена масла\\nТехническое обслуживание\\nРемонт тормозной системы\\nПодготовка к техосмотру',price:'',from:''};
+const days=['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
+let hours=days.map((d,i)=>({day:d,open:i<5,start:'09:00',end:'18:00'}));
+let photoUrls=[];
+function renderHours(){ $('hoursList').innerHTML=hours.map((h,i)=>`<div class="hoursrow"><b>${h.day}</b><input type="time" value="${h.start}" data-hour="${i}" data-key="start" ${!h.open?'disabled':''}><input type="time" value="${h.end}" data-hour="${i}" data-key="end" ${!h.open?'disabled':''}><button data-toggle="${i}">${h.open?'Открыто':'Закрыто'}</button></div>`).join('');
+ document.querySelectorAll('[data-hour]').forEach(el=>el.addEventListener('change',e=>{hours[+e.target.dataset.hour][e.target.dataset.key]=e.target.value;update()}));
+ document.querySelectorAll('[data-toggle]').forEach(el=>el.addEventListener('click',e=>{let i=+e.target.dataset.toggle;hours[i].open=!hours[i].open;renderHours();update()}));
+}
+function val(id){return $(id).value.trim()}
+function safeUrl(s){try{return new URL(s).hostname.replace(/^www\./,'')}catch{return s||'Не указан'}}
+function openText(){let open=hours.filter(h=>h.open);if(!open.length)return 'Закрыто';let first=open[0],last=open[open.length-1];return `${first.day}–${last.day} ${first.start}–${first.end}`}
+function update(){
+ $('pName').textContent=val('name')||'Название организации';$('mName').textContent=val('name')||'Название организации';
+ $('pCategory').textContent=val('category');$('mCategory').textContent=val('category');
+ $('pAddress').textContent=[val('address'),val('city'),val('postal'),val('country')].filter(Boolean).join(', ')||'Адрес не указан';
+ $('mAddress').textContent=[val('city'),val('country')].filter(Boolean).join(', ')||'Местоположение не указано';
+ $('pPhone').textContent=val('phone')||'Не указан';$('pWebsite').textContent=safeUrl(val('website'));
+ $('pDescription').textContent=val('description')||'Описание пока не добавлено';
+ $('pServices').textContent=val('servicesText').split('\n').map(s=>s.trim()).filter(Boolean).join(' · ')||'Не указаны';
+ $('pPrice').textContent=val('price')||'Не указана';$('pAreas').textContent=val('areas')||'Не указаны';
+ $('pHours').textContent=hours.some(h=>h.open)?'Часы работы · '+openText():'Закрыто';$('mHours').textContent=openText();
+ $('descCount').textContent=$('description').value.length;
+}
+document.querySelectorAll('input:not([type=file]),textarea,select').forEach(el=>el.addEventListener('input',update));
+document.querySelectorAll('nav button').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active',b===btn));document.querySelectorAll('.section').forEach(s=>s.classList.toggle('active',s.id===btn.dataset.tab))}));
+document.querySelectorAll('.previewtabs button').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('.previewtabs button').forEach(b=>b.classList.toggle('active',b===btn));$('searchView').style.display=btn.dataset.view==='search'?'block':'none';$('mapsView').style.display=btn.dataset.view==='maps'?'block':'none'}));
+$('photoUpload').addEventListener('change',e=>{photoUrls=[];const files=[...e.target.files].slice(0,8);Promise.all(files.map(f=>new Promise(resolve=>{const r=new FileReader();r.onload=()=>resolve(r.result);r.readAsDataURL(f)}))).then(urls=>{photoUrls=urls;$('photoGrid').innerHTML=urls.map(u=>`<div class="photo-box"><img src="${u}"></div>`).join('')||'<div class="photo-box">Нет фото</div>';if(urls[0]){$('mainPhoto').innerHTML=`<img alt="Фото организации" src="${urls[0]}">`;$('mapPhoto').innerHTML=`<img alt="Фото организации" src="${urls[0]}">`}})});
+$('reset').addEventListener('click',()=>{ids.forEach(id=>$(id).value=defaults[id]);hours=days.map((d,i)=>({day:d,open:i<5,start:'09:00',end:'18:00'}));renderHours();photoUrls=[];$('photoUpload').value='';$('photoGrid').innerHTML='<div class="photo-box">Здесь появятся<br>твои фото</div>';$('mainPhoto').textContent='Фотография организации';$('mapPhoto').textContent='Фото организации';update()});
+$('export').addEventListener('click',()=>{const data={trainingSimulator:true,profile:Object.fromEntries(ids.map(id=>[id,$(id).value])),openingHours:hours,services:val('servicesText').split('\n').map(s=>s.trim()).filter(Boolean),note:'Учебные данные. Не являются публикацией в Google Business Profile.'};const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='gbp-training-profile.json';a.click();URL.revokeObjectURL(a.href)});
+renderHours();update();
+</script>
+</body>
+</html>
